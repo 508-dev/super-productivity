@@ -44,6 +44,8 @@ services:
       - JWT_SECRET=${JWT_SECRET}
       - PUBLIC_URL=${PUBLIC_URL:-http://localhost:1900}
       - CORS_ORIGINS=${CORS_ORIGINS:-https://app.super-productivity.com}
+      # Only trust forwarded client headers from the bundled Caddy proxy.
+      - TRUST_PROXY=${TRUST_PROXY:-172.30.0.2}
       - SMTP_HOST=${SMTP_HOST:-}
       - SMTP_PORT=${SMTP_PORT:-587}
       - SMTP_SECURE=${SMTP_SECURE:-false}
@@ -204,7 +206,8 @@ services:
       retries: 3
       start_period: 10s
     networks:
-      - internal
+      internal:
+        ipv4_address: 172.30.0.2
     cap_drop:
       - ALL
     cap_add:
@@ -226,3 +229,6 @@ networks:
     # `external: true` regardless of the COMPOSE_PROJECT_NAME used.
     name: super-sync-server_internal
     driver: bridge
+    ipam:
+      config:
+        - subnet: 172.30.0.0/24

@@ -524,7 +524,7 @@ const setActiveContext = async (ctx: ActiveWorkContext | null): Promise<void> =>
   try {
     editor.commands.setContent(
       docJson as Parameters<typeof editor.commands.setContent>[0],
-      false,
+      { emitUpdate: false },
     );
   } catch (err) {
     // Parsing the stored blob failed. Don't auto-save the fallback —
@@ -534,7 +534,7 @@ const setActiveContext = async (ctx: ActiveWorkContext | null): Promise<void> =>
     isDocCorrupt = true;
     editor.commands.setContent(
       buildSeedDoc(ctx, lookupTask) as Parameters<typeof editor.commands.setContent>[0],
-      false,
+      { emitUpdate: false },
     );
   }
   updateDocStatusBanner();
