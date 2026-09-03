@@ -350,17 +350,17 @@ export const createServer = (
       return fastifyServer;
     },
     start: async (): Promise<string> => {
+      // Trust forwarded client headers only from an explicitly configured
+      // reverse proxy address or CIDR. The bundled Compose deployment sets
+      // this to Caddy's fixed internal address; unset means fail closed.
+      const trustProxy = process.env.TRUST_PROXY?.trim() || false;
       fastifyServer = Fastify({
         logger: false, // We use our own logger
         bodyLimit: 20 * 1024 * 1024, // 20MB - needed for large imports
         // Add explicit timeouts for long-running operations
         connectionTimeout: 90000, // 90s - match client timeout
         requestTimeout: 80000, // 80s - must exceed DB timeout (60s) but be less than Caddy (85s)
-        // Fastify 5.12 no longer types numeric hop counts and fails closed for
-        // them at runtime because a hop count cannot authenticate the immediate
-        // peer. Keep proxy headers untrusted until the deployment can provide an
-        // explicit proxy address or trust function.
-        trustProxy: false,
+        trustProxy,
       });
 
       // Sanitize 5xx responses so internal details (e.g. raw Prisma errors
